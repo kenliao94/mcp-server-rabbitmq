@@ -8,6 +8,7 @@ from mcp_server_rabbitmq.handlers import (
     handle_enqueue,
     handle_fanout,
     handle_get_exchange_info,
+    handle_get_messages,
     handle_get_queue_info,
     handle_list_exchanges,
     handle_list_queues,
@@ -147,6 +148,90 @@ class TestQueueHandlers:
 
         # Verify the call
         mock_admin.purge_queue.assert_called_once_with("test-queue", "custom-vhost")
+
+    @patch("mcp_server_rabbitmq.handlers.RabbitMQConnection")
+    def test_handle_get_messages(self, mock_connection_class):
+        """Test that handle_get_messages retrieves messages and acks/nacks as expected for single and multiple messages."""
+        # Setup mocks
+        mock_connection = MagicMock()
+        mock_channel = MagicMock()
+        mock_connection.get_channel.return_value = (mock_connection, mock_channel)
+        mock_method_frame1 = MagicMock()
+        mock_method_frame1.delivery_tag = 123
+        mock_method_frame2 = MagicMock()
+        mock_method_frame2.delivery_tag = 456
+        mock_header_frame = MagicMock()
+        mock_body1 = b"hello"
+        mock_body2 = b"world"
+
+        # --- Single message, ack=True ---
+        mock_channel.basic_get.side_effect = [
+            (mock_method_frame1, mock_header_frame, mock_body1),
+            (None, None, None),
+        ]
+        result = handle_get_messages(mock_connection, "test-queue", ack=True, num_messages=1)
+        assert result == [
+            {"body": "hello", "delivery_tag": 123},
+        ]
+        mock_channel.basic_ack.assert_called_once_with(delivery_tag=123)
+        mock_channel.basic_nack.assert_not_called()
+        mock_connection.close.assert_called_once()
+
+        # --- Single message, ack=False ---
+        mock_channel.basic_ack.reset_mock()
+        mock_channel.basic_nack.reset_mock()
+        mock_connection.close.reset_mock()
+        mock_channel.basic_get.side_effect = [
+            (mock_method_frame1, mock_header_frame, mock_body1),
+            (None, None, None),
+        ]
+        result = handle_get_messages(mock_connection, "test-queue", ack=False, num_messages=1)
+        assert result == [
+            {"body": "hello", "delivery_tag": 123},
+        ]
+        mock_channel.basic_ack.assert_not_called()
+        mock_channel.basic_nack.assert_called_once_with(delivery_tag=123, requeue=True)
+        mock_connection.close.assert_called_once()
+
+        # --- Multiple messages, ack=True ---
+        mock_channel.basic_ack.reset_mock()
+        mock_channel.basic_nack.reset_mock()
+        mock_connection.close.reset_mock()
+        mock_channel.basic_get.side_effect = [
+            (mock_method_frame1, mock_header_frame, mock_body1),
+            (mock_method_frame2, mock_header_frame, mock_body2),
+            (None, None, None),
+        ]
+        result = handle_get_messages(mock_connection, "test-queue", ack=True, num_messages=2)
+        assert result == [
+            {"body": "hello", "delivery_tag": 123},
+            {"body": "world", "delivery_tag": 456},
+        ]
+        assert mock_channel.basic_ack.call_count == 2
+        mock_channel.basic_ack.assert_any_call(delivery_tag=123)
+        mock_channel.basic_ack.assert_any_call(delivery_tag=456)
+        mock_channel.basic_nack.assert_not_called()
+        mock_connection.close.assert_called_once()
+
+        # --- Multiple messages, ack=False ---
+        mock_channel.basic_ack.reset_mock()
+        mock_channel.basic_nack.reset_mock()
+        mock_connection.close.reset_mock()
+        mock_channel.basic_get.side_effect = [
+            (mock_method_frame1, mock_header_frame, mock_body1),
+            (mock_method_frame2, mock_header_frame, mock_body2),
+            (None, None, None),
+        ]
+        result = handle_get_messages(mock_connection, "test-queue", ack=False, num_messages=2)
+        assert result == [
+            {"body": "hello", "delivery_tag": 123},
+            {"body": "world", "delivery_tag": 456},
+        ]
+        assert mock_channel.basic_ack.call_count == 0
+        assert mock_channel.basic_nack.call_count == 2
+        mock_channel.basic_nack.assert_any_call(delivery_tag=123, requeue=True)
+        mock_channel.basic_nack.assert_any_call(delivery_tag=456, requeue=True)
+        mock_connection.close.assert_called_once()
 
 
 class TestExchangeHandlers:
