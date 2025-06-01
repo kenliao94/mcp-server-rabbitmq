@@ -220,9 +220,15 @@ class RabbitMQMCPServer:
         self.logger.info(f"Starting RabbitMQ MCP Server v{MCP_SERVER_VERSION}")
         self.logger.info(f"Connecting to RabbitMQ at {self.rabbitmq_host}:{self.rabbitmq_port}")
 
-        if args.sse:
+        # Set port if specified
+        if args.server_port:
             self.mcp.settings.port = args.server_port
+
+        # Determine transport type and run
+        if args.sse:
             self.mcp.run(transport="sse")
+        elif args.streamable_http:
+            self.mcp.run(transport="streamable-http")
         else:
             self.mcp.run()
 
@@ -243,6 +249,12 @@ def main():
         "--api-port", type=int, default=15671, help="Port for the RabbitMQ management API"
     )
     parser.add_argument("--sse", action="store_true", help="Use SSE transport")
+    parser.add_argument(
+        "--streamable-http",
+        dest="streamable_http",
+        action="store_true",
+        help="Use Streamable HTTP transport",
+    )
     parser.add_argument(
         "--server-port", type=int, default=8888, help="Port to run the MCP server on"
     )
