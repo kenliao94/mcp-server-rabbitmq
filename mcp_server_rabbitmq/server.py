@@ -14,6 +14,7 @@ from mcp_server_rabbitmq.handlers import (
     handle_enqueue,
     handle_fanout,
     handle_get_exchange_info,
+    handle_get_messages,
     handle_get_queue_info,
     handle_list_exchanges,
     handle_list_queues,
@@ -215,14 +216,50 @@ class RabbitMQMCPServer:
                 self.logger.error(f"{e}")
                 return f"Failed to get exchange info: {e}"
 
+        @self.mcp.tool()
+        def get_messages(queue: str, ack: bool = False, num_messages: int = 1) -> str:
+            """
+            Get up to num_messages from a queue and either ack (dequeue) or nack (requeue) each message.
+            WARNING: If ack=True, messages will be permanently removed from the queue.
+            Use with caution and confirm before proceeding.
+            Returns a list of messages and their delivery tags.
+            """
+            validate_rabbitmq_name(queue, "Queue name")
+            try:
+                rabbitmq = RabbitMQConnection(
+                    self.rabbitmq_host,
+                    self.rabbitmq_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
+                )
+                messages = handle_get_messages(rabbitmq, queue, ack=ack, num_messages=num_messages)
+                if not messages:
+                    return "No message available in queue"
+                return "\n".join(
+                    [
+                        f"Message {i + 1} (delivery_tag={msg['delivery_tag']}): {msg['body']}"
+                        for i, msg in enumerate(messages)
+                    ]
+                )
+            except Exception as e:
+                self.logger.error(f"{e}")
+                return f"Failed to read message(s): {e}"
+
     def run(self, args):
         """Run the MCP server with the provided arguments."""
         self.logger.info(f"Starting RabbitMQ MCP Server v{MCP_SERVER_VERSION}")
         self.logger.info(f"Connecting to RabbitMQ at {self.rabbitmq_host}:{self.rabbitmq_port}")
 
-        if args.sse:
+        # Set port if specified
+        if args.server_port:
             self.mcp.settings.port = args.server_port
+
+        # Determine transport type and run
+        if args.sse:
             self.mcp.run(transport="sse")
+        elif args.streamable_http:
+            self.mcp.run(transport="streamable-http")
         else:
             self.mcp.run()
 
@@ -243,6 +280,12 @@ def main():
         "--api-port", type=int, default=15671, help="Port for the RabbitMQ management API"
     )
     parser.add_argument("--sse", action="store_true", help="Use SSE transport")
+    parser.add_argument(
+        "--streamable-http",
+        dest="streamable_http",
+        action="store_true",
+        help="Use Streamable HTTP transport",
+    )
     parser.add_argument(
         "--server-port", type=int, default=8888, help="Port to run the MCP server on"
     )

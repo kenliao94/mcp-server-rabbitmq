@@ -52,8 +52,9 @@ https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq
 
 ## Roadmap
 1. Expose admin API tools and pika SDK tools
-1. Support Streamable HTTP when it is GA in Python SDK
 1. Support OAuth 2.1 and use it with RabbitMQ OAuth
+
+✅ Support Streamable HTTP now that is GA in Python SDK
 
 ## Development
 

@@ -48,3 +48,34 @@ def handle_get_exchange_info(
     rabbitmq_admin: RabbitMQAdmin, exchange: str, vhost: str = "/"
 ) -> dict:
     return rabbitmq_admin.get_exchange_info(exchange, vhost)
+
+
+def handle_get_messages(
+    rabbitmq: RabbitMQConnection, queue: str, ack: bool = False, num_messages: int = 1
+) -> list[dict]:
+    """
+    Get up to num_messages from a queue and either ack (dequeue) or nack (requeue) each message after all are fetched.
+    Returns a list of dicts with 'body' and 'delivery_tag'.
+    Matches RabbitMQ Management UI behavior.
+    """
+    connection, channel = rabbitmq.get_channel()
+    messages = []
+    method_frames = []
+    try:
+        for _ in range(num_messages):
+            method_frame, header_frame, body = channel.basic_get(queue=queue, auto_ack=False)
+            if method_frame is None:
+                break
+            messages.append(
+                {"body": body.decode() if body else "", "delivery_tag": method_frame.delivery_tag}
+            )
+            method_frames.append(method_frame)
+        # After fetching, ack or nack (requeue) each message as per the flag
+        for method_frame in method_frames:
+            if ack:
+                channel.basic_ack(delivery_tag=method_frame.delivery_tag)
+            else:
+                channel.basic_nack(delivery_tag=method_frame.delivery_tag, requeue=True)
+        return messages
+    finally:
+        connection.close()
