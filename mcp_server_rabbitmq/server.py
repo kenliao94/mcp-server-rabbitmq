@@ -41,7 +41,6 @@ class RabbitMQMCPServer:
         self.mcp = FastMCP(
             "mcp-server-rabbitmq",
             instructions="""Manage RabbitMQ message brokers and interact with queues and exchanges.""",
-            dependencies=["pydantic", "pika", "requests"],
         )
 
         # Connection parameters
@@ -225,7 +224,8 @@ class RabbitMQMCPServer:
                 raise ValueError(
                     "Please make sure --http-auth-jwks-uri and --http-auth-issuer are configured"
                 )
-            auth = BearerAuthProvider(
+            # TODO (check if there is a way to set it properly)
+            self.mcp.auth = BearerAuthProvider(
                 jwks_uri=args.http_auth_jwks_uri,
                 issuer=args.http_auth_issuer,
                 audience=args.http_auth_audience,
@@ -235,7 +235,6 @@ class RabbitMQMCPServer:
                 host="127.0.0.1",
                 port=args.server_port,
                 path="/mcp",
-                auth=auth,
             )
         else:
             self.mcp.run()
