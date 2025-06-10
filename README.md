@@ -16,6 +16,33 @@ npx -y @smithery/cli install @kenliao94/mcp-server-rabbitmq --client claude
 ### Try it online
 https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq
 
+### PyPI
+
+https://pypi.org/project/mcp-server-rabbitmq/
+
+```json
+{
+    "mcpServers": {
+      "rabbitmq": {
+        "command": "uvx",
+        "args": [
+            "mcp-server-rabbitmq@latest",
+            "--rabbitmq-host",
+            "<hostname ex. test.rabbit.com, localhost>",
+            "--port",
+            "<port number ex. 5672>",
+            "--username",
+            "<rabbitmq username>",
+            "--password",
+            "<rabbitmq password>",
+            "--use-tls",
+            "<true if uses amqps, false otherwise>"
+        ]
+      }
+    }
+}
+```
+
 ### Manual Installation
 1. Clone this repository.
 2. Add the following to your `claude_desktop_config.json` file:
@@ -54,6 +81,8 @@ https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq
 1. Expose admin API tools and pika SDK tools
 1. Support Streamable HTTP when it is GA in Python SDK
 1. Support OAuth 2.1 and use it with RabbitMQ OAuth
+1. Support Dynamic setting of broker info
+1. Publish to PyPI
 
 ## Development
 

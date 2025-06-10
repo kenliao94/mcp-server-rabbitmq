@@ -1,3 +1,3 @@
 """Constants for the RabbitMQ MCP server."""
 
-MCP_SERVER_VERSION = "2.0.0"
+MCP_SERVER_VERSION = "2.2.0"

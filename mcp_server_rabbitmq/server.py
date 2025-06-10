@@ -3,6 +3,7 @@ import os
 import sys
 
 from fastmcp import FastMCP
+from fastmcp.server.auth import BearerAuthProvider
 from loguru import logger
 
 from mcp_server_rabbitmq.admin import RabbitMQAdmin
@@ -218,11 +219,24 @@ class RabbitMQMCPServer:
     def run(self, args):
         """Run the MCP server with the provided arguments."""
         self.logger.info(f"Starting RabbitMQ MCP Server v{MCP_SERVER_VERSION}")
-        self.logger.info(f"Connecting to RabbitMQ at {self.rabbitmq_host}:{self.rabbitmq_port}")
 
-        if args.sse:
-            self.mcp.settings.port = args.server_port
-            self.mcp.run(transport="sse")
+        if args.http:
+            if "" in [args.http_auth_jwks_uri, args.http_auth_issuer, args.http_auth_audience]:
+                raise ValueError(
+                    "Please make sure --http-auth-jwks-uri and --http-auth-issuer are configured"
+                )
+            auth = BearerAuthProvider(
+                jwks_uri=args.http_auth_jwks_uri,
+                issuer=args.http_auth_issuer,
+                audience=args.http_auth_audience,
+            )
+            self.mcp.run(
+                transport="streamable-http",
+                host="127.0.0.1",
+                port=args.server_port,
+                path="/mcp",
+                auth=auth,
+            )
         else:
             self.mcp.run()
 
@@ -232,6 +246,7 @@ def main():
     parser = argparse.ArgumentParser(
         description="A Model Context Protocol (MCP) server for RabbitMQ"
     )
+    # Required arguments
     parser.add_argument("--rabbitmq-host", type=str, required=True, help="RabbitMQ host")
     parser.add_argument("--port", type=int, required=True, help="Port of the RabbitMQ host")
     parser.add_argument("--username", type=str, required=True, help="Username for the connection")
@@ -242,9 +257,21 @@ def main():
     parser.add_argument(
         "--api-port", type=int, default=15671, help="Port for the RabbitMQ management API"
     )
-    parser.add_argument("--sse", action="store_true", help="Use SSE transport")
+    # HTTP specific configuration
+    parser.add_argument("--http", action="store_true", help="Use Streamable HTTP transport")
     parser.add_argument(
         "--server-port", type=int, default=8888, help="Port to run the MCP server on"
+    )
+    parser.add_argument(
+        "--http-auth-jwks-uri", default="", help="JKWS URI for FastMCP Bearer Auth Provider"
+    )
+    parser.add_argument(
+        "--http-auth-issuer", default="", help="Issuer for FastMCP Bearer Auth Provider"
+    )
+    parser.add_argument(
+        "--http-auth-audience",
+        default="mcp_server_rabbitmq",
+        help="Audience for FastMCP Bearer Auth Provider",
     )
 
     args = parser.parse_args()

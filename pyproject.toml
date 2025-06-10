@@ -1,6 +1,6 @@
 [project]
 name = "mcp-server-rabbitmq"
-version = "2.0.0"
+version = "2.2.0"
 description = "A Model Context Protocol server providing access to RabbitMQ by LLMs"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -25,7 +25,7 @@ dependencies = [
     "pydantic>=2.0.0",
     "readabilipy>=0.2.0",
     "requests>=2.32.3",
-    "fastmcp>=2.2.5",
+    "fastmcp>=2.7.1",
     "loguru>=0.7.3",
 ]
 
@@ -39,6 +39,9 @@ Source = "https://github.com/kenliao94/mcp-server-rabbitmq"
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
 
 [tool.hatch.build.targets.wheel]
 packages = ["mcp_server_rabbitmq"]
