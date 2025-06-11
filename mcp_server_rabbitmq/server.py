@@ -92,6 +92,10 @@ class RabbitMQMCPServer:
                 return f"Failed to publish message: {e}"
 
         @self.mcp.tool()
+        def publish(topic: str, message: str):
+            raise NotImplementedError()
+
+        @self.mcp.tool()
         def list_queues() -> str:
             """List all the queues in the broker."""
             try:
@@ -220,15 +224,14 @@ class RabbitMQMCPServer:
         self.logger.info(f"Starting RabbitMQ MCP Server v{MCP_SERVER_VERSION}")
 
         if args.http:
-            if "" in [args.http_auth_jwks_uri, args.http_auth_issuer, args.http_auth_audience]:
-                raise ValueError(
-                    "Please make sure --http-auth-jwks-uri and --http-auth-issuer are configured"
-                )
-            # TODO (check if there is a way to set it properly)
+            if args.http_auth_jwks_uri == "":
+                raise ValueError("Please set --http-auth-jwks-uri")
+            # TODO: check if there is a way to set it properly
             self.mcp.auth = BearerAuthProvider(
                 jwks_uri=args.http_auth_jwks_uri,
                 issuer=args.http_auth_issuer,
                 audience=args.http_auth_audience,
+                required_scopes=args.http_auth_required_scopes,
             )
             self.mcp.run(
                 transport="streamable-http",
@@ -256,21 +259,34 @@ def main():
     parser.add_argument(
         "--api-port", type=int, default=15671, help="Port for the RabbitMQ management API"
     )
-    # HTTP specific configuration
+    # Streamable HTTP specific configuration
     parser.add_argument("--http", action="store_true", help="Use Streamable HTTP transport")
     parser.add_argument(
         "--server-port", type=int, default=8888, help="Port to run the MCP server on"
     )
     parser.add_argument(
-        "--http-auth-jwks-uri", default="", help="JKWS URI for FastMCP Bearer Auth Provider"
+        "--http-auth-jwks-uri",
+        type=str,
+        default=None,
+        help="JKWS URI for FastMCP Bearer Auth Provider",
     )
     parser.add_argument(
-        "--http-auth-issuer", default="", help="Issuer for FastMCP Bearer Auth Provider"
+        "--http-auth-issuer",
+        type=str,
+        default=None,
+        help="Issuer for FastMCP Bearer Auth Provider",
     )
     parser.add_argument(
         "--http-auth-audience",
-        default="mcp_server_rabbitmq",
+        type=str,
+        default=None,
         help="Audience for FastMCP Bearer Auth Provider",
+    )
+    parser.add_argument(
+        "--http-auth-required-scopes",
+        nargs="*",
+        default=None,
+        help="Required scope for FastMCP Bearer Auth Provider",
     )
 
     args = parser.parse_args()

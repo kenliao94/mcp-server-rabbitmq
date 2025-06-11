@@ -82,3 +82,6 @@ class RabbitMQAdmin:
         """Get overview of RabbitMQ server including version, stats, and listeners"""
         response = self._make_request("GET", "overview")
         return response.json()
+
+    def list_vhosts(self) -> Dict:
+        raise NotImplementedError()

@@ -18,6 +18,10 @@ def handle_fanout(rabbitmq: RabbitMQConnection, exchange: str, message: str):
     connection.close()
 
 
+def handle_topic(rabbitmq: RabbitMQConnection, topic: str, message: str):
+    pass
+
+
 def handle_list_queues(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_queues()
     return [queue["name"] for queue in result]
