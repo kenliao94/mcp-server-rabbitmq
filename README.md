@@ -90,9 +90,9 @@ https://pypi.org/project/mcp-server-rabbitmq/
 5. Try asking Claude to do a read/write operation of some sort to confirm the setup (e.g. ask it to publish a message to a queue). If there are issues, use the Debugging tools provided in the MCP documentation [here](https://modelcontextprotocol.io/docs/tools/debugging).
 
 ## Roadmap
-1. Expose admin API tools and pika SDK tools
-1. Support OAuth 2.1 and use it with RabbitMQ OAuth
-1. Publish to PyPI
+1. Full feature parity with `rabbitmqadmin`
+1. Support RabbitMQ OAuth instead of basic authentication
+
 
 ## Development
 
