@@ -1,12 +1,12 @@
 # RabbitMQ MCP Server
 [![smithery badge](https://smithery.ai/badge/@kenliao94/mcp-server-rabbitmq)](https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq)
 
-A [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) server implementation for RabbitMQ. Enabling MCP client to interact with queues and topics hosted in a RabbitMQ instance.
+A [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) server implementation for RabbitMQ operation.
 
 ## Features
 
 ### Manage your RabbitMQ message brokers using AI agent
-This MCP servers wraps admin APIs of a RabbitMQ broker as MCP tools. It also uses Pika to interact with RabbitMQ to operate at the message level. You can also specify a new RabbitMQ broker that you want to connect to, at runtime (default one is configured in the parameters passed to the MCP server).
+This MCP servers wraps admin APIs of a RabbitMQ broker as MCP tools. It also uses Pika to interact with RabbitMQ to operate at the message level. You can also specify a different RabbitMQ broker that you want to connect to mid-conversation (default is configured during server initialization).
 
 ### Supports streamable HTTP with FastMCP's `BearerAuthProvider`
 You can start a remote RabbitMQ MCP server by configuring your own IdP and 3rd party authorization provider.
