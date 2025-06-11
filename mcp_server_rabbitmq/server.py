@@ -219,6 +219,23 @@ class RabbitMQMCPServer:
                 self.logger.error(f"{e}")
                 return f"Failed to get exchange info: {e}"
 
+        @self.mcp.tool()
+        def initialize_connection_to_new_rabbitmq_broker(
+            rabbitmq_host: str,
+            rabbitmq_username: str,
+            rabbitmq_password: str,
+            rabbitmq_use_ttl: bool,
+            rabbitmq_api_port: int = 15671,
+        ) -> str:
+            """It allows user to connect to a new rabbitmq broker that is different than the one the user configures initially during the start of this server"""
+            self.rabbitmq_host = rabbitmq_host
+            self.rabbitmq_username = rabbitmq_username
+            self.rabbitmq_password = rabbitmq_password
+            self.rabbitmq_use_tls = rabbitmq_use_ttl
+            self.rabbitmq_api_port = rabbitmq_api_port
+
+            return "successfully connected"
+
     def run(self, args):
         """Run the MCP server with the provided arguments."""
         self.logger.info(f"Starting RabbitMQ MCP Server v{MCP_SERVER_VERSION}")
