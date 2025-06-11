@@ -15,9 +15,9 @@ You can start a remote RabbitMQ MCP server by configuring your own IdP and 3rd p
 The package is available on PyPI, you can use uvx without having to fork and build the MCP server locally first.
 
 
-## Running locally with the Claude desktop app
+## Installation
 
-### Installing via Smithery
+### Smithery
 
 To install RabbitMQ MCP Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq):
 
@@ -28,9 +28,12 @@ npx -y @smithery/cli install @kenliao94/mcp-server-rabbitmq --client claude
 ### Try it online
 https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq
 
+
 ### PyPI
 
 https://pypi.org/project/mcp-server-rabbitmq/
+
+Use uvx directly in your MCP client config
 
 ```json
 {
@@ -55,11 +58,8 @@ https://pypi.org/project/mcp-server-rabbitmq/
 }
 ```
 
-### Manual Installation
+### From source
 1. Clone this repository.
-2. Add the following to your `claude_desktop_config.json` file:
-- On MacOS: `~/Library/Application\ Support/Claude/claude_desktop_config.json`
-- On Windows: `%APPDATA%/Claude/claude_desktop_config.json`
 
 ```json
 {
@@ -86,8 +86,6 @@ https://pypi.org/project/mcp-server-rabbitmq/
     }
 }
 ```
-4. Install and open the [Claude desktop app](https://claude.ai/download).
-5. Try asking Claude to do a read/write operation of some sort to confirm the setup (e.g. ask it to publish a message to a queue). If there are issues, use the Debugging tools provided in the MCP documentation [here](https://modelcontextprotocol.io/docs/tools/debugging).
 
 ## Roadmap
 1. Full feature parity with `rabbitmqadmin`
