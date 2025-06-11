@@ -5,13 +5,13 @@ A [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol
 
 ## Features
 
-### Manage your RabbitMQ message brokers using AI agent.
+### Manage your RabbitMQ message brokers using AI agent
 This MCP servers wraps admin APIs of a RabbitMQ broker as MCP tools. It also uses Pika to interact with RabbitMQ to operate at the message level. You can also specify a new RabbitMQ broker that you want to connect to, at runtime (default one is configured in the parameters passed to the MCP server).
 
 ### Supports streamable HTTP with FastMCP's `BearerAuthProvider`
 You can start a remote RabbitMQ MCP server by configuring your own IdP and 3rd party authorization provider.
 
-### Seamless integration with MCP client
+### Seamless integration with MCP clients
 The package is available on PyPI, you can use uvx without having to fork and build the MCP server locally first.
 
 
