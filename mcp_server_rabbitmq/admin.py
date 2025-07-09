@@ -26,6 +26,12 @@ class RabbitMQAdmin:
         response = self._make_request("GET", "queues")
         return response.json()
 
+    def list_queues_by_vhost(self, vhost) -> List[Dict]:
+        """List all queues in the RabbitMQ server for a specific vhost"""
+        vhost_encoded = requests.utils.quote(vhost, safe="")
+        response = self._make_request("GET", f"queues/{vhost_encoded}")
+        return response.json()
+
     def list_exchanges(self) -> List[Dict]:
         """List all exchanges in the RabbitMQ server"""
         response = self._make_request("GET", "exchanges")
