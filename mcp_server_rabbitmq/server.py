@@ -19,6 +19,7 @@ from mcp_server_rabbitmq.handlers import (
     handle_list_exchanges,
     handle_list_queues,
     handle_purge_queue,
+    handle_list_vhosts
 )
 
 
@@ -128,6 +129,23 @@ class RabbitMQMCPServer:
             except Exception as e:
                 self.logger.error(f"{e}")
                 return f"Failed to list exchanges: {e}"
+
+        @self.mcp.tool()
+        def list_vhosts() -> str:
+            """List all the virtual hosts (vhosts) in the broker."""
+            try:
+                admin = RabbitMQAdmin(
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
+                )
+                result = handle_list_vhosts(admin)
+                return str(result)
+            except Exception as e:
+                self.logger.error(f"{e}")
+                return f"Failed to list virtual hosts: {e}"
 
         @self.mcp.tool()
         def get_queue_info(queue: str, vhost: str = "/") -> str:

@@ -32,6 +32,11 @@ def handle_list_exchanges(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     return [exchange["name"] for exchange in result]
 
 
+def handle_list_vhosts(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
+    result = rabbitmq_admin.list_vhosts()
+    return [vhost["name"] for vhost in result]
+
+
 def handle_get_queue_info(rabbitmq_admin: RabbitMQAdmin, queue: str, vhost: str = "/") -> dict:
     return rabbitmq_admin.get_queue_info(queue, vhost)
 
