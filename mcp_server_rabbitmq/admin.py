@@ -26,7 +26,7 @@ class RabbitMQAdmin:
         response = self._make_request("GET", "queues")
         return response.json()
 
-    def list_queues_by_vhost(self, vhost) -> List[Dict]:
+    def list_queues_by_vhost(self, vhost: str = "/") -> List[Dict]:
         """List all queues in the RabbitMQ server for a specific vhost"""
         vhost_encoded = requests.utils.quote(vhost, safe="")
         response = self._make_request("GET", f"queues/{vhost_encoded}")
@@ -37,7 +37,7 @@ class RabbitMQAdmin:
         response = self._make_request("GET", "exchanges")
         return response.json()
 
-    def list_exchanges_by_vhost(self, vhost) -> List[Dict]:
+    def list_exchanges_by_vhost(self, vhost: str = "/") -> List[Dict]:
         """List all exchanges in the RabbitMQ server for a specific vhost"""
         vhost_encoded = requests.utils.quote(vhost, safe="")
         response = self._make_request("GET", f"exchanges/{vhost_encoded}")
