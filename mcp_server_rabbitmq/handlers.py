@@ -26,11 +26,18 @@ def handle_list_queues(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_queues()
     return [queue["name"] for queue in result]
 
+def handle_list_queues_by_vhost(rabbitmq_admin: RabbitMQAdmin, vhost: str = "/") -> List[str]:
+    result = rabbitmq_admin.list_queues_by_vhost(vhost)
+    return [queue["name"] for queue in result]
+
 
 def handle_list_exchanges(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_exchanges()
     return [exchange["name"] for exchange in result]
 
+def handle_list_exchanges_by_vhost(rabbitmq_admin: RabbitMQAdmin, vhost: str = "/") -> List[str]:
+    result = rabbitmq_admin.list_exchanges_by_vhost(vhost)
+    return [queue["name"] for queue in result]
 
 def handle_list_vhosts(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_vhosts()
