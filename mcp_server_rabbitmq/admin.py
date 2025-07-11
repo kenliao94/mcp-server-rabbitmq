@@ -84,4 +84,6 @@ class RabbitMQAdmin:
         return response.json()
 
     def list_vhosts(self) -> Dict:
-        raise NotImplementedError()
+        """List all vhost in the RabbitMQ server"""
+        response = self._make_request("GET", "vhosts")
+        return response.json()
