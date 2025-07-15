@@ -26,6 +26,7 @@ def handle_list_queues(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_queues()
     return [queue["name"] for queue in result]
 
+
 def handle_list_queues_by_vhost(rabbitmq_admin: RabbitMQAdmin, vhost: str = "/") -> List[str]:
     result = rabbitmq_admin.list_queues_by_vhost(vhost)
     return [queue["name"] for queue in result]
@@ -35,9 +36,11 @@ def handle_list_exchanges(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_exchanges()
     return [exchange["name"] for exchange in result]
 
+
 def handle_list_exchanges_by_vhost(rabbitmq_admin: RabbitMQAdmin, vhost: str = "/") -> List[str]:
     result = rabbitmq_admin.list_exchanges_by_vhost(vhost)
     return [queue["name"] for queue in result]
+
 
 def handle_list_vhosts(rabbitmq_admin: RabbitMQAdmin) -> List[str]:
     result = rabbitmq_admin.list_vhosts()
@@ -64,3 +67,11 @@ def handle_get_exchange_info(
     rabbitmq_admin: RabbitMQAdmin, exchange: str, vhost: str = "/"
 ) -> dict:
     return rabbitmq_admin.get_exchange_info(exchange, vhost)
+
+
+def handle_list_shovels(rabbitmq_admin: RabbitMQAdmin) -> List[dict]:
+    return rabbitmq_admin.list_shovels()
+
+
+def handle_shovel(rabbitmq_admin: RabbitMQAdmin, shovel_name: str, vhost: str = "/") -> dict:
+    return rabbitmq_admin.get_shovel_info(shovel_name, vhost)

@@ -99,3 +99,14 @@ class RabbitMQAdmin:
         """List all vhost in the RabbitMQ server"""
         response = self._make_request("GET", "vhosts")
         return response.json()
+
+    def list_shovels(self) -> List[Dict]:
+        """List all shovels in the RabbitMQ server"""
+        response = self._make_request("GET", "shovels")
+        return response.json()
+
+    def get_shovel_info(self, shovel_name: str, vhost: str = "/") -> Dict:
+        """Get detailed information about a specific shovel in a vhost"""
+        vhost_encoded = requests.utils.quote(vhost, safe="")
+        response = self._make_request("GET", f"parameters/shovel/{vhost_encoded}/{shovel_name}")
+        return response.json()
