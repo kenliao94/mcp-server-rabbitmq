@@ -19,6 +19,11 @@ from mcp_server_rabbitmq.handlers import (
     handle_list_exchanges,
     handle_list_queues,
     handle_purge_queue,
+    handle_list_vhosts,
+    handle_list_queues_by_vhost,
+    handle_list_exchanges_by_vhost,
+    handle_list_shovels,
+    handle_shovel
 )
 
 
@@ -113,6 +118,23 @@ class RabbitMQMCPServer:
                 return f"Failed to list queues: {e}"
 
         @self.mcp.tool()
+        def list_queues_by_vhost(vhost: str = "/") -> str:
+            """List all the queues for a specific virtual host (vhost) in the broker."""
+            try:
+                admin = RabbitMQAdmin(
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
+                )
+                result = handle_list_queues_by_vhost(admin, vhost)
+                return str(result)
+            except Exception as e:
+                self.logger.error(f"{e}")
+                return f"Failed to get queue info: {e}"
+
+        @self.mcp.tool()
         def list_exchanges() -> str:
             """List all the exchanges in the broker."""
             try:
@@ -124,6 +146,40 @@ class RabbitMQMCPServer:
                     self.rabbitmq_use_tls,
                 )
                 result = handle_list_exchanges(admin)
+                return str(result)
+            except Exception as e:
+                self.logger.error(f"{e}")
+                return f"Failed to list exchanges: {e}"
+
+        @self.mcp.tool()
+        def list_vhosts() -> str:
+            """List all the virtual hosts (vhosts) in the broker."""
+            try:
+                admin = RabbitMQAdmin(
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
+                )
+                result = handle_list_vhosts(admin)
+                return str(result)
+            except Exception as e:
+                self.logger.error(f"{e}")
+                return f"Failed to list virtual hosts: {e}"
+
+        @self.mcp.tool()
+        def list_exchanges_by_vhost(vhost: str = "/") -> str:
+            """List all the exchanges for a specific virtual host in the broker."""
+            try:
+                admin = RabbitMQAdmin(
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
+                )
+                result = handle_list_exchanges_by_vhost(admin, vhost)
                 return str(result)
             except Exception as e:
                 self.logger.error(f"{e}")
@@ -214,6 +270,40 @@ class RabbitMQMCPServer:
                 )
                 validate_rabbitmq_name(exchange, "Exchange name")
                 result = handle_get_exchange_info(admin, exchange, vhost)
+                return str(result)
+            except Exception as e:
+                self.logger.error(f"{e}")
+                return f"Failed to get exchange info: {e}"
+
+        @self.mcp.tool()
+        def list_shovels() -> str:
+            """Get detailed information about shovels in the RabbitMQ broker."""
+            try:
+                admin = RabbitMQAdmin(
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
+                )
+                result = handle_list_shovels(admin)
+                return str(result)
+            except Exception as e:
+                self.logger.error(f"{e}")
+                return f"Failed to get exchange info: {e}"
+
+        @self.mcp.tool()
+        def get_shovel_info(name: str, vhost: str = "/") -> str:
+            """Get detailed information about specific shovel by name that is in a selected virtual host (vhost) in the RabbitMQ broker."""
+            try:
+                admin = RabbitMQAdmin(
+                    self.rabbitmq_host,
+                    self.rabbitmq_api_port,
+                    self.rabbitmq_username,
+                    self.rabbitmq_password,
+                    self.rabbitmq_use_tls,
+                )
+                result = handle_shovel(admin, name, vhost)
                 return str(result)
             except Exception as e:
                 self.logger.error(f"{e}")

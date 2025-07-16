@@ -26,9 +26,21 @@ class RabbitMQAdmin:
         response = self._make_request("GET", "queues")
         return response.json()
 
+    def list_queues_by_vhost(self, vhost: str = "/") -> List[Dict]:
+        """List all queues in the RabbitMQ server for a specific vhost"""
+        vhost_encoded = requests.utils.quote(vhost, safe="")
+        response = self._make_request("GET", f"queues/{vhost_encoded}")
+        return response.json()
+
     def list_exchanges(self) -> List[Dict]:
         """List all exchanges in the RabbitMQ server"""
         response = self._make_request("GET", "exchanges")
+        return response.json()
+
+    def list_exchanges_by_vhost(self, vhost: str = "/") -> List[Dict]:
+        """List all exchanges in the RabbitMQ server for a specific vhost"""
+        vhost_encoded = requests.utils.quote(vhost, safe="")
+        response = self._make_request("GET", f"exchanges/{vhost_encoded}")
         return response.json()
 
     def get_queue_info(self, queue: str, vhost: str = "/") -> Dict:
@@ -84,4 +96,17 @@ class RabbitMQAdmin:
         return response.json()
 
     def list_vhosts(self) -> Dict:
-        raise NotImplementedError()
+        """List all vhost in the RabbitMQ server"""
+        response = self._make_request("GET", "vhosts")
+        return response.json()
+
+    def list_shovels(self) -> List[Dict]:
+        """List all shovels in the RabbitMQ server"""
+        response = self._make_request("GET", "shovels")
+        return response.json()
+
+    def get_shovel_info(self, shovel_name: str, vhost: str = "/") -> Dict:
+        """Get detailed information about a specific shovel in a vhost"""
+        vhost_encoded = requests.utils.quote(vhost, safe="")
+        response = self._make_request("GET", f"parameters/shovel/{vhost_encoded}/{shovel_name}")
+        return response.json()
