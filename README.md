@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/kenliao94-mcp-server-rabbitmq-badge.png)](https://mseep.ai/app/kenliao94-mcp-server-rabbitmq)
+
 # RabbitMQ MCP Server
 [![smithery badge](https://smithery.ai/badge/@kenliao94/mcp-server-rabbitmq)](https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq)
 
