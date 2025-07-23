@@ -50,6 +50,8 @@ Use uvx directly in your MCP client config
             "<rabbitmq username>",
             "--password",
             "<rabbitmq password>",
+            "--api-port",
+            "<port number for the admin API, default to 15671>"
             "--use-tls",
             "<true if uses amqps, false otherwise>"
         ]

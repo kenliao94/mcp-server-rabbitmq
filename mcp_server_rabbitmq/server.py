@@ -17,13 +17,13 @@ from mcp_server_rabbitmq.handlers import (
     handle_get_exchange_info,
     handle_get_queue_info,
     handle_list_exchanges,
-    handle_list_queues,
-    handle_purge_queue,
-    handle_list_vhosts,
-    handle_list_queues_by_vhost,
     handle_list_exchanges_by_vhost,
+    handle_list_queues,
+    handle_list_queues_by_vhost,
     handle_list_shovels,
-    handle_shovel
+    handle_list_vhosts,
+    handle_purge_queue,
+    handle_shovel,
 )
 
 
