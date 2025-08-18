@@ -1,4 +1,5 @@
 # RabbitMQ MCP Server
+[![Trust Score](https://archestra.ai/mcp-catalog/api/badge/quality/kenliao94/mcp-server-rabbitmq)](https://archestra.ai/mcp-catalog/kenliao94__mcp-server-rabbitmq)
 [![smithery badge](https://smithery.ai/badge/@kenliao94/mcp-server-rabbitmq)](https://smithery.ai/server/@kenliao94/mcp-server-rabbitmq)
 
 A [Model Context Protocol](https://www.anthropic.com/news/model-context-protocol) server implementation for RabbitMQ operation.
