@@ -6,30 +6,46 @@ WORKDIR /app
 
 # Enable bytecode compilation
 ENV UV_COMPILE_BYTECODE=1
-
 # Copy from the cache instead of linking since it's a mounted volume
 ENV UV_LINK_MODE=copy
 
-# Install the project's dependencies using the lockfile and settings
-RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
-    uv sync --frozen --no-install-project --no-dev --no-editable
+# Copy dependency files first for better caching
+COPY uv.lock pyproject.toml ./
+
+# Install the project's dependencies WITHOUT cache mounts (Railway safe)
+RUN uv sync --frozen --no-install-project --no-dev --no-editable
 
 # Then, add the rest of the project source code and install it
-# Installing separately from its dependencies allows optimal layer caching
-ADD . /app
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-dev --no-editable
+COPY . /app
 
+# Install the project itself WITHOUT cache mounts
+RUN uv sync --frozen --no-dev --no-editable
+
+# Runtime stage
 FROM python:3.12-slim-bookworm
 
+# Create app user for security
+RUN groupadd --gid 1000 app && \
+    useradd --uid 1000 --gid app --shell /bin/bash --create-home app
+
+# Set working directory
 WORKDIR /app
 
+# Copy virtual environment from builder stage
 COPY --from=uv --chown=app:app /app/.venv /app/.venv
 
-# Place executables in the environment at the front of the path
+# Make sure we use venv
 ENV PATH="/app/.venv/bin:$PATH"
 
-# when running the container, add --db-path and a bind mount to the host's db file
+# Switch to non-root user
+USER app
+
+# Health check (optional)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
+  CMD python -c "import sys; sys.exit(0)" || exit 1
+
+# Default command - can be overridden with environment variables
 ENTRYPOINT ["mcp-server-rabbitmq"]
+
+# Default arguments - these will be used if no other args are provided
+CMD ["--help"]
