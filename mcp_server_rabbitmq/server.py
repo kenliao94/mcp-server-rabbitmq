@@ -3,7 +3,6 @@ import os
 import sys
 
 from fastmcp import FastMCP
-from fastmcp.server.auth import BearerAuthProvider
 from loguru import logger
 
 from mcp_server_rabbitmq.admin import RabbitMQAdmin
@@ -25,6 +24,36 @@ from mcp_server_rabbitmq.handlers import (
     handle_purge_queue,
     handle_shovel,
 )
+
+
+def _resolve_jwt_verifier():
+    """Return a JWKS-based token verifier class, across fastmcp versions.
+
+    fastmcp renamed ``BearerAuthProvider`` to ``JWTVerifier``; newer releases
+    dropped the old name (and its ``providers.bearer`` module) entirely. Both
+    accept the same ``jwks_uri`` / ``issuer`` / ``audience`` /
+    ``required_scopes`` keywords, so either satisfies this call site.
+
+    Resolved lazily and only on the HTTP path: importing it at module scope
+    made a stdio server fail to start over a symbol stdio never uses.
+    """
+    try:
+        from fastmcp.server.auth.providers.jwt import JWTVerifier
+
+        return JWTVerifier
+    except ImportError:
+        pass
+    try:
+        from fastmcp.server.auth import BearerAuthProvider
+
+        return BearerAuthProvider
+    except ImportError as exc:  # pragma: no cover - depends on installed fastmcp
+        raise RuntimeError(
+            "Could not resolve a JWKS token verifier from fastmcp. "
+            "Expected fastmcp.server.auth.providers.jwt.JWTVerifier "
+            "(fastmcp >= 2.11) or fastmcp.server.auth.BearerAuthProvider "
+            "(older releases)."
+        ) from exc
 
 
 class RabbitMQMCPServer:
@@ -334,7 +363,7 @@ class RabbitMQMCPServer:
             if args.http_auth_jwks_uri == "":
                 raise ValueError("Please set --http-auth-jwks-uri")
             # TODO: check if there is a way to set it properly
-            self.mcp.auth = BearerAuthProvider(
+            self.mcp.auth = _resolve_jwt_verifier()(
                 jwks_uri=args.http_auth_jwks_uri,
                 issuer=args.http_auth_issuer,
                 audience=args.http_auth_audience,
